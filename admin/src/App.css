@@ -1,0 +1,72 @@
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+input,
+textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+td {
+  user-select: text !important;
+}
+p {
+  margin: 0 !important;
+}
+body,
+#__next {
+  background: #dbe2ec;
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.table td {
+  vertical-align: middle !important;
+}
+.hover:hover {
+  cursor: pointer;
+}
+.ql-toolbar {
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+.ql-container {
+  border-radius: 0 0 0.25rem 0.25rem;
+}
+.alert-dismissible .close {
+  padding: 0.55rem 0.75rem !important;
+}
+
+p {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+@media (min-width: 1200px) {
+  .desktop {
+    display: block;
+  }
+  .tablet {
+    display: none;
+  }
+}
+@media (max-width: 1200px) {
+  .desktop {
+    display: none;
+  }
+  .tablet {
+    display: block;
+  }
+}
+@media (max-width: 576px) {
+  .search-button {
+    width: 100%;
+  }
+}
+@import './components/Dashboard/Chat/style/chat.css';

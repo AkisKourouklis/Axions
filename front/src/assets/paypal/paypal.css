@@ -1,0 +1,10 @@
+.paypal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.paypal-container div {
+  width: 100%;
+  text-align: center;
+}

@@ -1,0 +1,70 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb-base",
+    "airbnb/rules/react",
+    "prettier",
+    "prettier/react",
+    "plugin:import/warnings"
+  ],
+  "globals": {
+    "$Diff": true,
+    "Audio": true,
+    "Blob": true,
+    "FileReader": true,
+    "FormData": true,
+    "document": true,
+    "fetch": true,
+    "localStorage": true,
+    "navigator": true,
+    "process": true,
+    "window": true
+  },
+  "parser": "babel-eslint",
+  "plugins": ["prettier", "import", "flowtype", "react-hooks"],
+  "rules": {
+    "class-methods-use-this": 0,
+    "consistent-return": 0,
+    "flowtype/define-flow-type": 1,
+    "import/imports-first": ["error"],
+    "import/newline-after-import": "error",
+    "import/no-extraneous-dependencies": 0,
+    "no-console": "off",
+    "prefer-template": "off",
+    "no-else-return": "off",
+    "no-nested-ternary": "off",
+    "no-param-reassign": "off",
+    "no-plusplus": "off",
+    "no-return-assign": "off",
+    "no-underscore-dangle": "off",
+    "no-unused-expressions": [
+      "error",
+      {
+        "allowTaggedTemplates": true
+      }
+    ],
+    "prettier/prettier": "error",
+    "react/destructuring-assignment": 0,
+    "react/forbid-prop-types": 0,
+    "react/jsx-filename-extension": 0,
+    "react/jsx-props-no-spreading": 0,
+    "react/no-access-state-in-setstate": 0,
+    "react/no-danger": 0,
+    "react/no-did-update-set-state": 0,
+    "react/no-multi-comp": 0,
+    "react/no-unescaped-entities": 0,
+    "react/no-unused-prop-types": 0,
+    "react/prop-types": 0,
+    "react/react-in-jsx-scope": 0,
+    "react/state-in-constructor": 0
+  },
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
+    }
+  }
+}

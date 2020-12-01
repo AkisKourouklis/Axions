@@ -1,0 +1,41 @@
+.aboutMe-container {
+  background: url('/introimg.png');
+  background-size: cover;
+  background-position: center;
+  padding: 150px 50px;
+}
+.aboutMe-wrapper {
+  margin: 0 auto;
+  background: #090909b4;
+  padding: 2rem;
+  display: flex;
+  justify-content: flex-start;
+}
+.aboutMe-inner-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 2rem;
+}
+.aboutMe-title {
+  font-size: 26px;
+  color: #fff;
+  font-weight: bold;
+  border-bottom: 3px solid #e234f1;
+}
+.aboutMe-content {
+  font-size: 16px;
+  color: #fff;
+}
+
+@media (max-width: 576px) {
+  .aboutMe-container {
+    padding: 0px;
+  }
+  .aboutMe-wrapper {
+    padding: 1rem;
+  }
+  .aboutMe-inner-container {
+    flex-direction: column;
+  }
+}
