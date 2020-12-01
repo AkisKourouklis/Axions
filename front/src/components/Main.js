@@ -11,7 +11,7 @@ const Main = ({ children }) => {
       <div className="nav-container">
         <AppBar />
       </div>
-      <Container className="container-no-padding" style={{ marginTop: '60px' }}>
+      <Container fluid className="container-no-padding p-0">
         <div>{children}</div>
       </Container>
       <Footer />

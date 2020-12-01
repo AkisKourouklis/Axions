@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Dashboard from '../Dashboard';
-import { logout } from '../../../store/actions/auth.actions';
-import { useDispatch } from 'react-redux';
 import { Button, Row, Col, Form, Card, Spinner } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
-import { apiUrl } from '../../../config/api';
+import { apiUrl, axiosCallApi } from '../../../config/api';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const Settings = () => {
-  const dispatch = useDispatch();
   const [validVideo, setValidVideo] = useState(false);
   const [validVideo2, setValidVideo2] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,29 +14,33 @@ const Settings = () => {
   const [logo, setLogo] = useState(false);
   const [config, setConfig] = useState();
   const { register, handleSubmit } = useForm();
+  const router = useRouter();
 
   const _logout = () => {
-    dispatch(logout());
+    localStorage.clear();
+    router.reload();
   };
 
   const fetchConfig = () => {
     setLoading(true);
-    axios
+    axiosCallApi
       .get(`${apiUrl}/config/all`, {
-        headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+        }
       })
       .then((response) => {
         setConfig(response.data[0]);
         setLoading(false);
         if (response.data[0]?.favicon) {
-          axios
+          axiosCallApi
             .post(`${apiUrl}/courses/s3/single`, { file: response.data[0].favicon })
             .then((response) => {
               setFavicon(response.data);
             });
         }
         if (response.data[0]?.logo) {
-          axios
+          axiosCallApi
             .post(`${apiUrl}/courses/s3/single`, { file: response.data[0].logo })
             .then((response) => {
               setLogo(response.data);
@@ -122,7 +124,10 @@ const Settings = () => {
           favicon: favicon[0]?.name || config?.favicon,
           logo: logo[0]?.name || config?.logo,
           metatitle: values.metatitle,
-          metadescription: values.metadescription
+          metadescription: values.metadescription,
+          frontUrl: values.frontUrl,
+          adminUrl: values.adminUrl,
+          live: values.live
         },
         {
           headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
@@ -234,6 +239,38 @@ const Settings = () => {
                         />
                       </Form.Group>
                     </Form.Row>
+                    <Form.Row>
+                      <Form.Group as={Col}>
+                        <Form.Label>Url Ιστοσελίδας</Form.Label>
+                        <Form.Control
+                          placeholder="url"
+                          ref={register()}
+                          name="frontUrl"
+                          defaultValue={config?.frontUrl}
+                        />
+                      </Form.Group>
+                      <Form.Group as={Col}>
+                        <Form.Label>Url Διαχειριστικού</Form.Label>
+                        <Form.Control
+                          placeholder="url"
+                          ref={register()}
+                          name="adminUrl"
+                          defaultValue={config?.adminUrl}
+                        />
+                      </Form.Group>
+                    </Form.Row>
+                    <Form.Group>
+                      <Form.Label>Ζωντανή ιστοσελίδα</Form.Label>
+                      <Form.Control
+                        name="live"
+                        ref={register()}
+                        as="select"
+                        defaultValue={config?.live}
+                      >
+                        <option value="true">ΝΑΙ</option>
+                        <option value="false">OXI</option>
+                      </Form.Control>
+                    </Form.Group>
                   </Col>
                 </Row>
               </Form>

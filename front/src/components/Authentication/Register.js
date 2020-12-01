@@ -1,11 +1,11 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useContext } from 'react';
 import { Container, Card } from 'react-bootstrap';
 import Main from '../Main';
 import RegisterForm from './Components/RegisterForm';
+import { AuthContext } from '../../store/Context/Context';
 
 const Register = () => {
-  const auth = useSelector((state) => state.auth.isAuthenticated);
+  const auth = useContext(AuthContext);
 
   return (
     <Main>
@@ -14,7 +14,7 @@ const Register = () => {
           className="bg-light pt-5 pb-5"
           style={{ minHeight: 'calc(100vh - 60px)' }}
         >
-          {auth ? (
+          {auth.isAuthenticated ? (
             <Card>
               <Card.Header>
                 <h5>Εγγραφή</h5>

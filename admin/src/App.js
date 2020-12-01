@@ -1,42 +1,41 @@
-import App from 'next/app';
 import Head from 'next/head';
-import React from 'react';
-import { Provider } from 'react-redux';
-import withRedux from 'next-redux-wrapper';
-import { makeStore } from './store/store';
+import React, { useState, useEffect } from 'react';
+import { AuthContext } from './store/Context/Context';
 
-export default withRedux(makeStore)(
-  class MyApp extends App {
-    static async getInitialProps({ Component, ctx }) {
-      let pageProps = {};
+const MyApp = ({ Component, pageProps }) => {
+  const [auth, setAuth] = useState({
+    isAuthenticated: false,
+    isError: false,
+    id: '',
+    email: '',
+    name: '',
+    token: ''
+  });
 
-      if (Component.getInitialProps) {
-        pageProps = await Component.getInitialProps(ctx);
-      }
+  const start = () => {
+    setAuth({
+      isAuthenticated: Boolean(localStorage.getItem('isAuthenticated')),
+      id: localStorage.getItem('id'),
+      email: localStorage.getItem('email'),
+      name: localStorage.getItem('name'),
+      token: localStorage.getItem('jwtToken')
+    });
+  };
 
-      return { pageProps };
-    }
+  useEffect(() => {
+    start();
+  }, []);
+  return (
+    <>
+      <Head>
+        <meta httpEquiv="content-type" content="text/html; charset=utf-8" />
+        <title>Axions Dashboard</title>
+      </Head>
+      <AuthContext.Provider value={{ auth, setAuth }}>
+        <Component {...pageProps} />
+      </AuthContext.Provider>
+    </>
+  );
+};
 
-    render() {
-      const { Component, pageProps, store } = this.props;
-
-      return (
-        <>
-          <Head>
-            <meta httpEquiv="content-type" content="text/html; charset=utf-8" />
-            <title>AXIONS Dashboard</title>
-            <link rel="stylesheet" href="//cdn.quilljs.com/1.2.6/quill.snow.css" />
-            <link
-              href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swap"
-              rel="stylesheet"
-            />
-          </Head>
-
-          <Provider store={store}>
-            <Component {...pageProps} />
-          </Provider>
-        </>
-      );
-    }
-  }
-);
+export default MyApp;

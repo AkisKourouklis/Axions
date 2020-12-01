@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Container, Card, Alert } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
 import Main from '../Main';
 import LoginForm from './Components/LoginForm';
+import { AuthContext } from '../../store/Context/Context';
 
 const Login = () => {
-  const auth = useSelector((state) => state.auth.isAuthenticated);
-  const isError = useSelector((state) => state.auth.isError);
+  const { auth } = useContext(AuthContext);
 
   return (
     <Main>
@@ -15,7 +14,7 @@ const Login = () => {
           className="bg-light pt-5 pb-5"
           style={{ minHeight: 'calc(100vh - 60px)' }}
         >
-          {auth ? (
+          {auth.isAuthenticated ? (
             <Card>
               <Card.Header>
                 <h5>Σύνδεση</h5>
@@ -30,7 +29,7 @@ const Login = () => {
               <Card.Body>
                 <LoginForm />
               </Card.Body>
-              {isError ? (
+              {auth.isError ? (
                 <Card.Footer>
                   <Alert variant="danger" dismissible>
                     <Alert.Heading>Λάθος κωδικός πρόσβασης ή email</Alert.Heading>

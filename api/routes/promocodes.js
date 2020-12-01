@@ -2,10 +2,7 @@ const express = require('express');
 const httpStatus = require('http-status');
 const PromoCode = require('../models/promocode.model');
 const utils = require('../utils/utils');
-const {
-  verifyTokenMiddleware,
-  verifySubscriberTokenMiddleware
-} = require('../middleware/auth');
+const { verifyTokenMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -15,7 +12,10 @@ router.post('/check/', async (req, res) => {
   if (foundPromoCode) {
     await Promise.all(
       courses.map((course) => {
-        if (foundPromoCode.appliesOn.includes(course._id)) {
+        if (
+          foundPromoCode.appliesOn.includes(course._id) ||
+          foundPromoCode.appliesOn.includes('all')
+        ) {
           course.promoCodePrice =
             Math.floor(
               (foundPromoCode.isPercentage
@@ -32,7 +32,7 @@ router.post('/check/', async (req, res) => {
 });
 
 // Get all
-router.get('/all', async (req, res) => {
+router.get('/all', [verifyTokenMiddleware], async (req, res) => {
   const { orderby, filter, skip, sort, perPage } = req.query;
   try {
     const aggregate = PromoCode.aggregate();
@@ -78,7 +78,8 @@ router.get('/all', async (req, res) => {
         return res.json({
           count,
           promoCodes: results,
-          pageCount
+          pageCount,
+          role: req.tokenDecoded.role
         });
       }
     );
@@ -90,7 +91,7 @@ router.get('/all', async (req, res) => {
 });
 
 // Create new
-router.post('/new', (req, res) => {
+router.post('/new', [verifyTokenMiddleware], (req, res) => {
   const { name, isPercentage, value, appliesOn } = req.body;
 
   const newPromoCode = new PromoCode({
@@ -112,8 +113,44 @@ router.post('/new', (req, res) => {
     });
 });
 
+// add apply on
+router.post(`/new/applyon/:id`, [verifyTokenMiddleware], (req, res) => {
+  PromoCode.updateOne(
+    { _id: req.params.id },
+    {
+      $push: {
+        appliesOn: req.body.value
+      }
+    }
+  )
+    .then((response) => {
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+});
+
+//remove applyon
+router.post(`/remove/applyon/:id`, [verifyTokenMiddleware], (req, res) => {
+  PromoCode.updateOne(
+    { _id: req.params.id },
+    {
+      $pull: {
+        appliesOn: req.body.value
+      }
+    }
+  )
+    .then((response) => {
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+});
+
 // Get one by id.
-router.get('/:id', (req, res) => {
+router.get('/:id', [verifyTokenMiddleware], (req, res) => {
   const { id } = req.params;
   PromoCode.findById(id)
     .then((promoCode) => {
@@ -128,7 +165,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Get one by name.
-router.get('/:name', (req, res) => {
+router.get('/:name', [verifyTokenMiddleware], (req, res) => {
   const { name } = req.params;
   PromoCode.findOne({ name })
     .then((course) => {
@@ -143,14 +180,13 @@ router.get('/:name', (req, res) => {
 });
 
 // Patch: Edit by id
-router.patch('/', (req, res) => {
-  const { _id, name, isPercentage, value, appliesOn } = req.body;
+router.patch('/', [verifyTokenMiddleware], (req, res) => {
+  const { _id, name, isPercentage, value } = req.body;
 
   PromoCode.findByIdAndUpdate(_id, {
     name,
     isPercentage,
-    value,
-    appliesOn
+    value
   })
     .then(() => {
       res.status(httpStatus.OK);
@@ -164,7 +200,7 @@ router.patch('/', (req, res) => {
 });
 
 // Delete by id
-router.post('/delete/:id', (req, res) => {
+router.post('/delete/:id', [verifyTokenMiddleware], (req, res) => {
   const { id } = req.params;
 
   PromoCode.findByIdAndDelete(id)

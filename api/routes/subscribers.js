@@ -4,7 +4,6 @@ const express = require('express'),
   jwt = require('jsonwebtoken'),
   router = express.Router(),
   nodemailer = require('nodemailer'),
-  aws = require('aws-sdk'),
   Subscriber = require('../models/subscriber.model'),
   {
     verifyTokenMiddleware,
@@ -13,20 +12,8 @@ const express = require('express'),
   utils = require('../utils/utils'),
   jwtAuthentication = require('../middleware/auth');
 
-const BUCKET_NAME = 'becomethevulture';
-const IAM_USER_KEY = process.env.S3_ACCESS_ID;
-const IAM_USER_SECRET = process.env.S3_ACCESS_SECRET;
-
-const s3bucket = new aws.S3({
-  accessKeyId: IAM_USER_KEY,
-  secretAccessKey: IAM_USER_SECRET,
-  Bucket: BUCKET_NAME,
-  signatureVersion: 'v4',
-  region: 'eu-central-1'
-});
-
 // get all
-router.get('/all', async (req, res) => {
+router.get('/all', [verifyTokenMiddleware], async (req, res) => {
   const { orderby, filter, skip, sort, perPage } = req.query;
   try {
     const aggregate = Subscriber.aggregate();
@@ -72,7 +59,8 @@ router.get('/all', async (req, res) => {
         return res.json({
           count,
           subscribers: results,
-          pageCount
+          pageCount,
+          role: req.tokenDecoded.role
         });
       }
     );
@@ -84,7 +72,7 @@ router.get('/all', async (req, res) => {
 });
 
 // ge by id
-router.get('/:id', (req, res) => {
+router.get('/:id', [verifyTokenMiddleware], (req, res) => {
   Subscriber.findById({ _id: req.params.id }, (err, doc) => {
     if (err) {
       console.log(err);
@@ -208,7 +196,7 @@ router.patch('/:id', (req, res) => {
 });
 
 // add course
-router.post('/addCourse', (req, res) => {
+router.post('/addCourse', [verifyTokenMiddleware], (req, res) => {
   const { id, course } = req.body;
 
   Subscriber.findByIdAndUpdate(
@@ -242,7 +230,7 @@ router.post('/addCourse/client', [verifySubscriberTokenMiddleware], (req, res) =
 });
 
 // remove course
-router.post('/removeCourse', (req, res) => {
+router.post('/removeCourse', [verifyTokenMiddleware], (req, res) => {
   const { id, course } = req.body;
 
   Subscriber.findByIdAndUpdate(
@@ -257,24 +245,6 @@ router.post('/removeCourse', (req, res) => {
       }
     }
   );
-});
-
-// get s3 file
-router.post('/s3/single', (req, res) => {
-  const { file } = req.body;
-
-  const params = {
-    Bucket: BUCKET_NAME,
-    Key: file
-  };
-
-  s3bucket.getSignedUrl('getObject', params, (err, data) => {
-    if (err) {
-      console.log(err);
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-    }
-    res.status(httpStatus.OK).json(data);
-  });
 });
 
 //  forgot password

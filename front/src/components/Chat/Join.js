@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
-import { BsChatDots } from 'react-icons/bs';
+import React, { useState, useContext } from 'react';
+import { BsChatDotsFill } from 'react-icons/bs';
 import { Button, Row, Col } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
-import Room from './Room';
 import axios from 'axios';
+import Room from './Room';
 import { publicApi } from '../../config/api';
+import { AuthContext } from '../../store/Context/Context';
 
 export default () => {
   const [show, setShow] = useState(false);
-  const auth = useSelector((state) => state.auth.isAuthenticated);
-  const email = useSelector((state) => state.auth.email);
-  const user = useSelector((state) => state.auth.user);
+  const { auth } = useContext(AuthContext);
   const [chat, setChat] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -21,13 +19,9 @@ export default () => {
   const toggleChat = () => {
     setLoading(true);
     axios
-      .post(
-        `${publicApi}/email/support-chat`,
-        { email },
-        {
-          headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
-        }
-      )
+      .post(`${publicApi}/email/support-chat`, auth.email, {
+        headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+      })
       .then(() => {
         setChat(true);
         setLoading(false);
@@ -36,19 +30,27 @@ export default () => {
 
   return (
     <>
-      <div className="chat-bumble mt-3 mt-xl-0" onClick={toggleShow}>
-        <BsChatDots />
+      <div onClick={toggleShow}>
+        <BsChatDotsFill
+          className="hover icon"
+          style={{ color: '#fff', fontSize: '25px' }}
+        />
       </div>
-      <div className={show ? 'chat-join-container' : 'd-none'}>
+      <div className={show ? 'chat-join-container bg-secondary' : 'd-none'}>
         {chat ? (
           <>
-            <Room email={email} user={user} />
+            <Room email={auth.email} user={auth.name} />
           </>
         ) : (
           <>
             {auth ? (
               <>
                 <Row>
+                  <Col xs="12" className="mb-1">
+                    <Button href="/contact" block onClick={toggleShow} variant="info">
+                      Επικοινωνία
+                    </Button>
+                  </Col>
                   <Col xs="12">
                     <Button disabled={loading} onClick={toggleChat} variant="light" block>
                       {loading ? 'Περιμένετε' : 'Έναρξη συνομιλίας'}
@@ -66,6 +68,11 @@ export default () => {
                 <Col>
                   <h5>Κάνε σύνδεση ή εγγραφή</h5>
                   <Row>
+                    <Col xs="12" className="mb-1">
+                      <Button href="/contact" block onClick={toggleShow} variant="info">
+                        Επικοινωνία
+                      </Button>
+                    </Col>
                     <Col xs="12">
                       <Button href="/authentication/login" variant="light" block>
                         Σύνδεση

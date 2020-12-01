@@ -36,6 +36,7 @@ const Newsletter = () => {
   };
 
   const sentEmail = () => {
+    setLoading(true);
     axios
       .post(`${apiUrl}/email/email`, { email: emails, subject, content: quill })
       .then((response) => {
@@ -48,28 +49,14 @@ const Newsletter = () => {
       });
   };
 
-  const fetchNewsletterEmails = () => {
-    axios.get(`${apiUrl}/email/newsletter?perPage=9999999`).then((response) => {
-      setEmails(response.data.newsletters.map((data) => data.email));
-    });
-  };
-
   const fetchEmails = () => {
     axios
-      .get(`${apiUrl}/subscribers/all?perPage=9999999`, {
+      .get(`${apiUrl}/subscribers/all`, {
         headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
       })
       .then((response) => {
         setEmails(response.data.subscribers.map((data) => data.email));
       });
-  };
-
-  const setSendEmails = (e) => {
-    if (e.target.value === 'subscriber') {
-      fetchEmails();
-    } else {
-      fetchNewsletterEmails();
-    }
   };
 
   useEffect(() => {
@@ -87,17 +74,7 @@ const Newsletter = () => {
         {alert ? <Alert message="Επιτυχία" /> : null}
         <Card>
           <Card.Header>
-            <Row>
-              <Col>
-                <h5>Αποστολή email σε όλους τους πελάτες</h5>
-              </Col>
-              <Col>
-                <Form.Control as="select" onChange={setSendEmails}>
-                  <option value="subscriber">Αποστολή σε πελάτες</option>
-                  <option value="newsletter">Αποστολή σε εγγεγραμμένους</option>
-                </Form.Control>
-              </Col>
-            </Row>
+            <h5>Αποστολή email σε όλους τους πελάτες</h5>
           </Card.Header>
           <Card.Body>
             <Form.Group>

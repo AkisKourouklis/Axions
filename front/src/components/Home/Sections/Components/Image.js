@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { publicApi } from '../../../../config/api';
+import { fetchLogo } from '../../../../utils/Config';
 
 const Image = ({ imagekey }) => {
   const [image, setImage] = useState();
 
-  const fetchImage = () => {
-    axios.post(`${publicApi}/courses/s3/single`, { file: imagekey }).then((response) => {
-      setImage(response.data);
-    });
+  const fetchStart = async () => {
+    const logo = await fetchLogo(imagekey);
+    setImage(logo);
   };
+
   useEffect(() => {
-    fetchImage();
+    fetchStart();
   }, [imagekey]);
 
   return (
     <>
-      <img src={image} alt="logo" width="100%" style={{ maxWidth: '300px' }} />
+      {image ? (
+        <img src={image} alt="logo" width="100%" style={{ maxWidth: '300px' }} />
+      ) : null}
     </>
   );
 };

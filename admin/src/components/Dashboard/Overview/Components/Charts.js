@@ -22,7 +22,7 @@ const Charts = () => {
 
   return (
     <>
-      <Card>
+      <Card className="shadow-sm">
         <Card.Body>{transactions?.reduce((a, b) => a + b, 0)}€</Card.Body>
       </Card>
     </>

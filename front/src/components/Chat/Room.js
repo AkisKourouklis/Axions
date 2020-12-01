@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import { Card } from 'react-bootstrap';
 import Input from './Components/Input';
 import Messages from './Components/Messages';
 import { publicApi } from '../../config/api';
-import { Card } from 'react-bootstrap';
 
 let socket;
 
@@ -24,12 +24,12 @@ export default ({ email, user }) => {
   }, []);
 
   useEffect(() => {
-    socket.on('message', (message) => {
-      setMessages((messages) => [...messages, message]);
+    socket.on('message', (_message) => {
+      setMessages((messages) => [...messages, _message]);
     });
 
-    socket.on('roomData', ({ users }) => {
-      setUsers(users);
+    socket.on('roomData', ({ _users }) => {
+      setUsers(_users);
     });
   }, []);
 

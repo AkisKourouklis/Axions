@@ -1,27 +1,15 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import axios from 'axios';
 import { Form, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import { authregister } from '../../../store/actions/authentication.action';
-import { publicApi } from '../../../config/api';
+import { register as authregister } from '../../../utils/Auth';
 
 const RegisterForm = () => {
-  const dispatch = useDispatch();
   const { handleSubmit, register } = useForm();
   const router = useRouter();
 
-  const sendEmail = (email) => {
-    axios.post(`${publicApi}/email/register`, email).then((res) => {
-      console.log(res);
-    });
-  };
-
   const finishRegister = (values) => {
-    dispatch(authregister(values));
-    sendEmail(values.email);
-    router.push('/authentication/login');
+    authregister(values, router);
   };
 
   return (

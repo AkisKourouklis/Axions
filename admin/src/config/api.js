@@ -3,7 +3,7 @@ const axios = require('axios');
 const config = {};
 
 config.production = {};
-config.production.apiUrl = 'https://api.becomethevulture.com';
+config.production.apiUrl = 'https://api.sovrakofanela.gr';
 
 config.development = {};
 config.development.apiUrl = 'http://localhost:4005';

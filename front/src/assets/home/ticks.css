@@ -5,6 +5,7 @@
   padding: 100px;
 }
 .ticks-wrapper {
+  border-radius: 7px;
   max-width: 1280px;
   margin: 0 auto;
   background: #090909b4;

@@ -15,9 +15,6 @@ textarea {
   -ms-user-select: text;
   user-select: text;
 }
-td {
-  user-select: text !important;
-}
 p {
   margin: 0 !important;
 }

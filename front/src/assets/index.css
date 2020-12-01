@@ -7,19 +7,19 @@ body {
   height: 100%;
 }
 
-@font-face {
-  src: '/911Fonts.com_CenturyGothicBold__-_911fonts.com_fonts_pMgo.ttf';
-  font-family: 'Gothic', sans-serif;
-}
-
 .player-wrapper {
   padding: 0 !important;
 }
 p {
   margin: 0 !important;
   padding: 0 !important;
-  font-family: 'Poppins', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif' !important;
 }
+.brand-img:hover {
+  transition: 0.3s;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
 a {
   color: #2997ff;
   text-decoration: none;
@@ -40,13 +40,13 @@ hr {
 #__next {
   overflow-x: hidden;
   height: 100%;
-  background: #d9d9d9;
-  background-image: url('/bg.jpg');
+  background: #f8f9fa;
+  /* background-image: url('/bg.jpg'); */
 }
 .search-form {
   background: #f1f1f1;
   padding: 1rem;
-  border-radius: 0.25rem;
+  border-radius: 7px;
   position: absolute;
   right: 0;
   top: 60px;
@@ -87,6 +87,9 @@ hr {
   z-index: 9999;
   width: 320px;
 }
+.promo-text {
+  display: none;
+}
 @media (max-width: 1200px) {
   .search-card {
     position: relative;
@@ -97,7 +100,8 @@ hr {
     margin-top: 1rem;
   }
 }
-@media (max-width: 768px) {
+
+@media (max-width: 1200px) {
   .desktop {
     display: none !important;
   }
@@ -109,11 +113,24 @@ hr {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
   .tablet {
     display: none !important;
   }
   .desktop {
     display: block;
+  }
+}
+@media (max-width: 768px) {
+  .promo-text {
+    display: block;
+    font-weight: 900;
+    background: #f1f1f1;
+    color: #232323;
+    font-size: 28px;
+    padding: 8px;
+    max-width: 250px;
+    margin: 0 auto;
+    margin-bottom: 10px;
   }
 }
