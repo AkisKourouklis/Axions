@@ -1,0 +1,77 @@
+.ticks-container {
+  background: url('/intro.png');
+  background-size: cover;
+  background-position: center;
+  padding: 100px;
+}
+.ticks-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  background: #090909b4;
+  padding: 2rem 5rem;
+}
+
+.ticks-title {
+  font-size: 60px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+}
+.ticks-subtitle {
+  text-align: center;
+  font-weight: 100;
+  color: rgb(230, 230, 230);
+  margin-top: 1rem;
+}
+.info-title {
+  margin-bottom: 1rem;
+}
+
+.ticks-inner-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.info-title p {
+  font-size: 27px;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+}
+.info-content p {
+  color: #fff;
+  font-family: 'Gothic', sans-serif;
+  font-weight: lighter;
+  font-size: 18px;
+}
+
+@media (max-width: 576px) {
+  .ticks-container {
+    padding: 20px;
+  }
+  .ticks-title {
+    font-size: 30px;
+  }
+  .ticks-wrapper {
+    padding: 0.5rem;
+    padding-bottom: 2rem;
+  }
+  .ticks-inner-container {
+    flex-direction: column;
+  }
+  .info-content p {
+    font-size: 16px;
+  }
+  .info-title p {
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .info-title {
+    margin-top: 1rem;
+  }
+  .ticks-container {
+    padding: 0;
+  }
+}

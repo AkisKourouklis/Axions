@@ -1,0 +1,66 @@
+.logo-intro {
+  width: 400px;
+}
+
+.headline {
+  font-size: 56px;
+  color: #ffffff;
+  margin-bottom: 10px;
+  position: relative;
+}
+.subhead {
+  font-size: 21px;
+  color: #ffffff;
+  font-weight: 400;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.2;
+  position: relative;
+}
+.price {
+  margin-top: 0.4em !important;
+  color: #f5f5f7;
+  font-size: 15px;
+  position: relative;
+}
+.intro-links {
+  margin-top: 0.8em;
+}
+.intro-links a {
+  font-size: 21px;
+  position: relative;
+  text-decoration: none;
+  font-weight: 400;
+}
+.intro-links a:before,
+.intro-links a:after {
+  border-right: 2px solid;
+  content: '';
+  display: block;
+  height: 8px;
+  margin-top: -6px;
+  position: absolute;
+  -moz-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  transform: rotate(135deg);
+  right: -10px;
+  top: 55%;
+  width: 0;
+}
+
+.intro-links a:after {
+  margin-top: -1px;
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+@media (max-width: 576px) {
+  .logo-intro {
+    width: 300px;
+  }
+  .intro-links a {
+    font-size: 16px;
+  }
+}
