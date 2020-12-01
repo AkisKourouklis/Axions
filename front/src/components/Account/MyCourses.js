@@ -1,36 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useContext } from 'react';
 import { Container } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
 import Account from './Account';
 import Tables from './Components/CoursesTables';
-import { publicApi } from '../../config/api';
+import { AuthContext } from '../../store/Context/Context';
+import { fetchOnwedCourses } from '../../utils/Courses';
 
 const MyCourse = () => {
   const [coursesData, setCourses] = useState();
-  const id = useSelector((state) => state.auth.id);
+  const { auth } = useContext(AuthContext);
 
-  const fetchOnwedCourses = () => {
-    axios
-      .get(`${publicApi}/subscribers/client/${id}`, {
-        headers: { authorization: 'Bearer ' + localStorage.getItem('jwtToken') }
-      })
-      .then((response) => {
-        axios
-          .post(
-            `${publicApi}/courses/courses/client`,
-            { courses: response.data.courses },
-            { headers: { authorization: 'Bearer ' + localStorage.getItem('jwtToken') } }
-          )
-          .then((doc) => setCourses(doc.data));
-      });
+  const _fetchOnwedCourses = async () => {
+    const courses = await fetchOnwedCourses(auth.id);
+    setCourses(courses);
   };
 
   useEffect(() => {
-    if (id) {
-      fetchOnwedCourses();
+    if (auth.id) {
+      _fetchOnwedCourses();
     }
-  }, [id]);
+  }, [auth.id]);
 
   return (
     <>

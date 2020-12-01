@@ -1,0 +1,17 @@
+$border-radius: 7px;
+$theme-colors: (
+  'primary': #e08527,
+  'secondary': #1165ae,
+  'dark': #2d2d2d,
+  'gray': #d8d8d8
+);
+$link-hover-color: #e08527;
+
+$container-max-widths: (
+  'sm': 540px,
+  'md': 720px,
+  'lg': 960px,
+  'xl': 1440px
+);
+
+@import '~bootstrap/scss/bootstrap';

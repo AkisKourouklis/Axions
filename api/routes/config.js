@@ -1,9 +1,6 @@
 const express = require('express');
 const Config = require('../models/config.model');
-const {
-  verifyTokenMiddleware,
-  verifySubscriberTokenMiddleware
-} = require('../middleware/auth');
+const { verifyTokenMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -17,7 +14,7 @@ router.get('/all/client', (req, res) => {
       res.status(200).json(err);
     });
 });
-router.get('/all', (req, res) => {
+router.get('/all', [verifyTokenMiddleware], (req, res) => {
   Config.find({})
     .then((doc) => {
       res.status(200).json(doc);
@@ -28,7 +25,7 @@ router.get('/all', (req, res) => {
 });
 
 // add favicon
-router.post('/favicon', (req, res) => {
+router.post('/favicon', [verifyTokenMiddleware], (req, res) => {
   const { favicon } = req.body;
   const newConfig = new Config({ favicon });
 
@@ -41,11 +38,27 @@ router.post('/favicon', (req, res) => {
       res.status(500).json(err);
     });
 });
-// edit favicon
-router.patch('/config/:id', (req, res) => {
-  const { favicon, metatitle, metadescription, logo } = req.body;
+// edit config
+router.patch('/config/:id', [verifyTokenMiddleware], (req, res) => {
+  const {
+    favicon,
+    metatitle,
+    metadescription,
+    logo,
+    adminUrl,
+    frontUrl,
+    live
+  } = req.body;
   if (req.params.id === 'undefined') {
-    const newConfig = new Config({ logo, favicon, metatitle, metadescription });
+    const newConfig = new Config({
+      logo,
+      favicon,
+      metatitle,
+      metadescription,
+      adminUrl,
+      frontUrl,
+      live
+    });
     newConfig
       .save()
       .then((doc) => {
@@ -62,7 +75,10 @@ router.patch('/config/:id', (req, res) => {
           logo,
           favicon,
           metatitle,
-          metadescription
+          metadescription,
+          adminUrl,
+          frontUrl,
+          live
         }
       },
       { new: true, upsert: false }

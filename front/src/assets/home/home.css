@@ -1,22 +1,102 @@
-.home-title {
-  font-size: 31px;
-  font-weight: bold;
+/* section 1 */
+.section1-container {
+  background: url('../../../public/Confetti-Doodles.svg');
 }
-.home-subtitle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* section2 */
+.section2 {
+  margin: 5rem 0;
 }
-.home-subtitle p {
-  font-size: 18px;
+.section2-container {
+  max-width: 1140px;
+}
+@media (max-width: 1200px) {
+  .section2-title::before {
+    top: -6rem;
+  }
+  .section2-title::after {
+    top: 3.4rem;
+  }
+  .section2 {
+    margin: 3rem 0;
+  }
+}
+@media (max-width: 576px) {
+  .section2-title::before {
+    top: -6rem;
+  }
+  .section2-title::after {
+    top: 3.4rem;
+  }
+  .section2 {
+    margin: 0;
+  }
+}
+/* section5 */
+.section5 {
+  margin: 9rem 0 5rem 0;
+}
+/* section7 */
+.section7 {
+  /* background: linear-gradient(270deg, #e08527 0%, #e08527 100%); */
+  margin-top: 2rem;
+}
+/* section2 */
+.section7-container {
+  /* margin-top: -90px; */
+  margin-bottom: 50px;
 }
 
-@media (max-width: 576px) {
-  .home-title {
-    font-size: 21px;
-    font-weight: bold;
-  }
-  .home-subtitle p {
-    font-size: 16px;
+/* //card image */
+.image-card-large {
+  background-size: 120% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 3rem;
+  height: 550px;
+
+  transition: background-size 0.1s ease;
+}
+.image-card-small {
+  background-size: 120% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 3rem;
+  height: 200px;
+
+  transition: background-size 0.1s ease;
+}
+.image-card {
+  background-size: 120% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 3rem;
+  height: 350px;
+
+  transition: background-size 0.1s ease;
+}
+.image-card:hover {
+  background-size: 150% !important;
+  transition: 0.3s;
+}
+.image-card-small:hover {
+  background-size: 150% !important;
+  transition: 0.3s;
+}
+.image-card-large:hover {
+  background-size: 150% !important;
+  transition: 0.3s;
+}
+@media (max-width: 768px) {
+  .image-card {
+    height: 220px;
   }
 }

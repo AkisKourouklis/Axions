@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Axios from 'axios';
-import { Spinner, Row, Button, Col, Modal } from 'react-bootstrap';
-import dynamic from 'next/dynamic';
-import { FiPlus } from 'react-icons/fi';
-import Dashboard from '../Dashboard';
-import CourseAdd from './Components/CourseAdd';
-import CourseEdit from './Components/CourseEdit';
-import CourseAddVideo from './Components/CourseAddVideo';
-import Alert from '../Alerts/Alert';
 import { apiUrl } from '../../../config/api';
+import { FiPlus } from 'react-icons/fi';
+import { Spinner, Row, Button, Col } from 'react-bootstrap';
+import { useRouter } from 'next/router';
+import AddCourse from '../Shared/Modals/AddCourse';
+import AddVideoCourseModal from '../Shared/Modals/AddVideoCourse';
+import Alert from '../Alerts/Alert';
+import Axios from 'axios';
+import Dashboard from '../Dashboard';
+import DeleteCourseModal from '../Shared/Modals/DeleteCourse';
+import dynamic from 'next/dynamic';
+import EditCourseModal from '../Shared/Modals/EditCourse';
 
-const Tables = dynamic(() => import('./Components/Tables'), {
+const Tables = dynamic(() => import('../Shared/Tables/CourseTable'), {
   loading: () => <Spinner className="mb-1" animation="border" size="sm" />
 });
-const Pagination = dynamic(() => import('./Components/Pagination'), {
+const Pagination = dynamic(() => import('../Shared/Pagination/Pagination'), {
   loading: () => <Spinner className="mb-1" animation="border" size="sm" />
 });
-const Search = dynamic(() => import('./Components/Search'), {
+const Search = dynamic(() => import('../Shared/Search/Search'), {
   loading: () => <Spinner className="mb-1" animation="border" size="sm" />
 });
 
@@ -32,6 +34,7 @@ const Courses = () => {
   const [filter, setFilter] = useState('');
   const [courseId, setCourseId] = useState();
   const handleShow = () => setShow(!show);
+  const router = useRouter();
 
   // delete modal
   const handleShowDelete = (id) => {
@@ -77,6 +80,9 @@ const Courses = () => {
       } else {
         setSkip(skip - 1);
       }
+      if (skip === 0) {
+        setSkip(1);
+      }
     },
     [skip, setSkip]
   );
@@ -103,7 +109,7 @@ const Courses = () => {
     // HERE WE UPLOAD IMAGE TO AMAZON S3
     Axios.post(`${apiUrl}/courses/upload/${values.image[0].name}`, fd, {
       headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
-    }).then((response) => {
+    }).then(() => {
       const {
         name,
         description,
@@ -116,20 +122,26 @@ const Courses = () => {
         price
       } = values;
       // HERE WE UPLOAD COURSE FIELDS TO API WITH RESPONSE BEEING THE IMAGE LOCATION
-      Axios.post(`${apiUrl}/courses/new`, {
-        name,
-        description,
-        options: [
-          { name: option1 },
-          { name: option2 },
-          { name: option3 },
-          { name: option4 },
-          { name: option5 }
-        ],
-        visible,
-        price,
-        image: response.data
-      })
+      Axios.post(
+        `${apiUrl}/courses/new`,
+        {
+          name,
+          description,
+          options: [
+            { name: option1 },
+            { name: option2 },
+            { name: option3 },
+            { name: option4 },
+            { name: option5 }
+          ],
+          visible,
+          price,
+          image: values?.image[0]?.name
+        },
+        {
+          headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+        }
+      )
         .then(() => {
           setLoading(false);
           setShow(false);
@@ -152,7 +164,7 @@ const Courses = () => {
       // HERE WE UPLOAD IMAGE TO AMAZON S3
       Axios.post(`${apiUrl}/courses/upload/${values.image[0].name}`, fd, {
         headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
-      }).then((response) => {
+      }).then(() => {
         const {
           name,
           description,
@@ -164,50 +176,64 @@ const Courses = () => {
           visible,
           price
         } = values;
-        Axios.patch(`${apiUrl}/courses/${courseId}`, {
-          name,
-          description,
-          options: [
-            { name: option1 },
-            { name: option2 },
-            { name: option3 },
-            { name: option4 },
-            { name: option5 }
-          ],
-          visible,
-          price,
-          image: response.data
-        })
+        Axios.patch(
+          `${apiUrl}/courses/${courseId}`,
+          {
+            name,
+            description,
+            options: [
+              { name: option1 },
+              { name: option2 },
+              { name: option3 },
+              { name: option4 },
+              { name: option5 }
+            ],
+            visible,
+            price,
+            image: values?.image[0]?.name
+          },
+          {
+            headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+          }
+        )
           .then(() => {
             setLoading(false);
             setShowEdit(false);
             toggleAlert();
             fetchCourses();
+            router.reload();
           })
           .catch((err) => {
             console.log(err);
           });
       });
     }
-    Axios.patch(`${apiUrl}/courses/${courseId}`, {
-      name: values.name,
-      description: values.description,
-      options: [
-        { name: values.option1 },
-        { name: values.option2 },
-        { name: values.option3 },
-        { name: values.option4 },
-        { name: values.option5 }
-      ],
-      visible: values.visible,
-      price: values.price,
-      image: values.imageUrl
-    })
+    Axios.patch(
+      `${apiUrl}/courses/${courseId}`,
+      {
+        name: values.name,
+        description: values.description,
+        options: [
+          { name: values.option1 },
+          { name: values.option2 },
+          { name: values.option3 },
+          { name: values.option4 },
+          { name: values.option5 }
+        ],
+        visible: values.visible,
+        price: values.price,
+        image: values.imageUrl
+      },
+      {
+        headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+      }
+    )
       .then(() => {
         setLoading(false);
         setShowEdit(false);
         toggleAlert();
         fetchCourses();
+        router.reload();
       })
       .catch((err) => {
         console.log(err);
@@ -243,6 +269,7 @@ const Courses = () => {
           setShowAddVideo(false);
           toggleAlert();
           fetchCourses();
+          router.reload();
         })
         .catch((err) => {
           console.log(err);
@@ -252,14 +279,13 @@ const Courses = () => {
 
   // submit delete course
   const deleteCourse = () => {
-    // setLoading(true);
-    // Axios.post(`${apiUrl}/courses/delete/${courseId}`).then((response) => {
-    //   console.log(response.data);
-    //   setLoading(false);
-    //   hideDelete();
-    //   toggleAlert();
-    // });
-    console.log('Delete');
+    setLoading(true);
+    Axios.post(`${apiUrl}/courses/delete/${courseId}`).then((response) => {
+      console.log(response.data);
+      setLoading(false);
+      hideDelete();
+      toggleAlert();
+    });
   };
 
   useEffect(() => {
@@ -306,99 +332,37 @@ const Courses = () => {
         {/* PAGINATION */}
         <Pagination changePage={changePage} skip={skip} />
         {/* MODAL ADD COURSE */}
-        <Modal show={show} onHide={handleShow} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Προσθήκη νέου μαθήματος</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <CourseAdd submit={handleSubmit} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleShow}>
-              Έξοδος
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form="addCourse-form"
-              disabled={loading}
-            >
-              {loading ? <>Περιμένετε</> : <>Δημιουργία νέου μαθήματος</>}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <AddCourse
+          submit={handleSubmit}
+          show={show}
+          handleShow={handleShow}
+          loading={loading}
+        />
+
         {/* MODAL DELETE COURSE */}
-        <Modal show={showDelete} onHide={hideDelete} size="md">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Διαγραφή μαθήματος</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>Θέλεις να διαγράψεις αυτό το μάθημα ?</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={hideDelete}>
-              Έξοδος
-            </Button>
-            <Button
-              variant="danger"
-              type="button"
-              onClick={deleteCourse}
-              disabled={loading}
-            >
-              {loading ? <>Περιμένετε</> : <>Διαγραφή Μαθήματος</>}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <DeleteCourseModal
+          showDelete={showDelete}
+          hideDelete={hideDelete}
+          deleteCourse={deleteCourse}
+          loading={loading}
+        />
         {/* MODAL EDIT COURSE */}
-        <Modal show={showEdit} onHide={hideEdit} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Επεξεργασία μαθήματος</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <CourseEdit id={courseId} submit={handleSubmitEdit} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={hideEdit}>
-              Έξοδος
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form="editCourse-form"
-              disabled={loading}
-            >
-              {loading ? <>Περιμένετε</> : <>Αποθήκευση μαθήματος</>}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <EditCourseModal
+          showEdit={showEdit}
+          hideEdit={hideEdit}
+          id={courseId}
+          submit={handleSubmitEdit}
+          loading={loading}
+        />
+
         {/* MODAL ADD VIDEO COURSE */}
-        <Modal show={showAddVideo} onHide={hideAddVideo} size="xl">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Προσθήκη βίντεο</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <CourseAddVideo id={courseId} submit={handleSubmitAddVideo} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={hideAddVideo}>
-              Έξοδος
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form="addVideoCourse-form"
-              disabled={loading}
-            >
-              {loading ? <>Περιμένετε</> : <>Αποθήκευση βίντεο</>}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <AddVideoCourseModal
+          showAddVideo={showAddVideo}
+          hideAddVideo={hideAddVideo}
+          courseId={courseId}
+          submit={handleSubmitAddVideo}
+          _loading={loading}
+        />
       </Dashboard>
     </>
   );

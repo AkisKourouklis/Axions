@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Nav, Navbar, Container } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { logout } from '../../store/actions/authentication.action';
+import { AuthContext } from '../../store/Context/Context';
 
 const AccountWrapper = ({ children }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
+  const { setAuth } = useContext(AuthContext);
 
   const _logout = () => {
-    dispatch(logout());
+    setAuth({
+      isAuthenticated: false,
+      isError: false,
+      id: '',
+      email: '',
+      name: '',
+      token: ''
+    });
+    localStorage.clear();
     router.push('/');
   };
 

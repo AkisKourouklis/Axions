@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Table, Row, Col, Button, Modal, ButtonGroup } from 'react-bootstrap';
-import { MdEdit, MdAdd, MdDelete } from 'react-icons/md';
-import axios from 'axios';
-import Search from '../Courses/Components/Search';
-import Pagination from '../Courses/Components/Pagination';
-import AddCode from './Components/AddCode';
-import EditCode from './Components/EditCode';
 import { apiUrl } from '../../../config/api';
-import Dashboard from '../Dashboard';
+import { MdAdd } from 'react-icons/md';
+import { Row, Col, Button, Spinner } from 'react-bootstrap';
+import AddpromocodeModal from '../Shared/Modals/Addpromocode';
 import Alert from '../Alerts/Alert';
+import axios from 'axios';
+import Dashboard from '../Dashboard';
+import Deletepromocode from '../Shared/Modals/Deletepromocode';
+import EditpromocodeModal from '../Shared/Modals/Editpromocode';
+import dynamic from 'next/dynamic';
+
+const PromocodeTable = dynamic(() => import('../Shared/Tables/PromocodeTable'), {
+  loading: () => <Spinner className="mb-1" animation="border" size="sm" />
+});
+const Pagination = dynamic(() => import('../Shared/Pagination/Pagination'), {
+  loading: () => <Spinner className="mb-1" animation="border" size="sm" />
+});
+const Search = dynamic(() => import('../Shared/Search/Search'), {
+  loading: () => <Spinner className="mb-1" animation="border" size="sm" />
+});
 
 const Promocodes = () => {
   const [codes, setCodes] = useState();
@@ -61,6 +71,9 @@ const Promocodes = () => {
         setSkip(skip + 1);
       } else {
         setSkip(skip - 1);
+      }
+      if (skip === 0) {
+        setSkip(1);
       }
     },
     [skip, setSkip]
@@ -165,117 +178,36 @@ const Promocodes = () => {
           </Col>
         </Row>
         <Search onChange={changeFilter} />
-        <Card>
-          <Card.Body>
-            <Table responsive striped hover>
-              <thead>
-                <tr>
-                  <th className="desktop">#</th>
-                  <th>Όνομα</th>
-                  <th>Τις %</th>
-                  <th>Τιμή</th>
-                  <th>Μαθήματα</th>
-                  <th>Εντολές</th>
-                </tr>
-              </thead>
-              <tbody>
-                {codes?.map((data, i) => {
-                  return (
-                    <tr key={data._id}>
-                      <td className="desktop">{i}</td>
-                      <td>{data.name}</td>
-                      <td>{data.isPercentage.toString()}</td>
-                      <td>{data.value}</td>
-                      <td>{data.appliesOn}</td>
-                      <td>
-                        <ButtonGroup className="mr-2" aria-label="First group">
-                          <Button
-                            onClick={() => {
-                              handleShowΕdit();
-                              setCodeId(data._id);
-                            }}
-                          >
-                            <MdEdit />
-                          </Button>
-                          <Button
-                            variant="danger"
-                            onClick={() => {
-                              handleShowDelete();
-                              setCodeId(data._id);
-                            }}
-                          >
-                            <MdDelete />
-                          </Button>
-                        </ButtonGroup>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-            <Pagination changePage={changePage} skip={skip} />
-          </Card.Body>
-        </Card>
-        {/* MODAL ADD CLIENT */}
-        <Modal show={showAdd} onHide={toggleHideAdd} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Προσθήκη κωδικού</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <AddCode onSubmit={onSubmitAdd} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={toggleHideAdd}>
-              Έξοδος
-            </Button>
-            <Button variant="primary" type="submit" form="addCode-form">
-              Αποθήκευση κωδικού
-            </Button>
-          </Modal.Footer>
-        </Modal>
-        {/* MODAL EDIT CLIENT */}
-        <Modal show={showEdit} onHide={hideEdit} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Επεξεργασία κωδικού έκπτωσης</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <EditCode id={codeId} onSubmit={onSubmitEdit} />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={hideEdit}>
-              Έξοδος
-            </Button>
-            <Button variant="primary" type="submit" form="editCode-form">
-              {loading ? <>Περιμένετε</> : <>Αποθήκευση κωδικού</>}
-            </Button>
-          </Modal.Footer>
-        </Modal>
-        {/* MODAL DELETE COURSE */}
-        <Modal show={showDelete} onHide={hideDelete} size="md">
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <h5>Διαγραφή μαθήματος</h5>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>Θέλεις να διαγράψεις αυτόν τον κωδικό έκπτωσης ?</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={hideDelete}>
-              Έξοδος
-            </Button>
-            <Button
-              variant="danger"
-              type="button"
-              onClick={deleteCode}
-              disabled={loading}
-            >
-              {loading ? <>Περιμένετε</> : <>Διαγραφή Μαθήματος</>}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <PromocodeTable
+          codes={codes}
+          handleShowDelete={handleShowDelete}
+          handleShowΕdit={handleShowΕdit}
+          setCodeId={setCodeId}
+        />
+        <Pagination changePage={changePage} skip={skip} />
+
+        {/* MODAL ADD PROMOCODE */}
+        <AddpromocodeModal
+          showAdd={showAdd}
+          toggleHideAdd={toggleHideAdd}
+          onSubmit={onSubmitAdd}
+        />
+        {/* MODAL EDIT PROMOCODE */}
+        <EditpromocodeModal
+          showEdit={showEdit}
+          hideEdit={hideEdit}
+          onSubmit={onSubmitEdit}
+          loading={loading}
+          id={codeId}
+        />
+
+        {/* MODAL DELETE PROMOCODE */}
+        <Deletepromocode
+          showDelete={showDelete}
+          hideDelete={hideDelete}
+          deleteCode={deleteCode}
+          loading={loading}
+        />
       </Dashboard>
     </>
   );

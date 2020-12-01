@@ -1,0 +1,70 @@
+$border-radius: 0px;
+$border-radius-lg: 0px;
+$theme-colors: (
+  'primary': #e08527,
+  'secondary': #1165ae,
+  'dark': #2d2d2d,
+  'gray': #d8d8d8,
+  'gray-dark': #525050,
+  'dark-black': #232323
+);
+$link-hover-color: #e08527 !important;
+$font-family-sans-serif: 'Heebo', sans-serif;
+$btn-font-size-lg: 18px;
+
+$container-max-widths: (
+  'sm': 540px,
+  'md': 720px,
+  'lg': 960px,
+  'xl': 1440px
+);
+
+@import '~bootstrap/scss/bootstrap';
+
+.navbar-brand {
+  margin-right: 2rem;
+}
+iframe {
+  border-radius: 7px;
+}
+.modal-content {
+  border-radius: 7px;
+}
+.navbar-toggler {
+  border: none;
+}
+
+@font-face {
+  font-family: 'Heebo', sans-serif;
+  src: url('../../../public/Heebo-VariableFont_wght.ttf');
+}
+@font-face {
+  src: url('../../../public/Futura\ LDR.ttf');
+  font-family: 'Futura English';
+}
+.english-font {
+  font-family: 'Futura English';
+}
+.normal-font {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+.icon:hover {
+  color: #e08527 !important;
+  transition: 0.3s;
+}
+.product-card:hover {
+  background-size: 600px !important;
+}
+.btn-lg {
+  border: 2px solid white;
+}
+// .navbar-collapse {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   z-index: 9999;
+//   height: 100vh;
+//   background: #2d2d2d;
+//   width: 100% !important;
+//   padding: 0;
+// }

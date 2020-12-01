@@ -1,277 +1,158 @@
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Container, Form, Button, Card } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useContext, useEffect, useState } from 'react';
+import { Row, Col, Container, Form, Button, Spinner, Alert } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import axios from 'axios';
-import { publicApi } from '../../config/api';
-import { checkoutDiscount, checkoutProduct } from '../../store/actions/checkout.actions';
+import { CheckoutContext, AuthContext } from '../../store/Context/Context';
+import { discount } from '../../utils/Checkout';
+import { fetchLogo } from '../../utils/Config';
+import { fetchSingle } from '../../utils/Courses';
+import { fetchSingle as fetchProduct } from '../../utils/Products';
+import { useForm } from 'react-hook-form';
 import Main from '../Main';
-import ProductVideo from './components/ProductVideo';
+import PreviableVideos from './components/PreviableVideos';
 
 const Course = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const [courseData, setCourse] = useState();
+  const { checkout, setCheckout } = useContext(CheckoutContext);
+  const { auth } = useContext(AuthContext);
+  const { register, handleSubmit } = useForm();
+  const [data, setData] = useState();
   const [image, setImage] = useState();
-  const discountPromo = useSelector((state) => state.checkout.discount);
-  const isAuth = useSelector((state) => state.auth.isAuthenticated);
+  const [alert, setAlert] = useState(false);
+  const [_dicsountValue, setDiscount] = useState();
 
-  const discount = async () => {
-    try {
-      const discountRequest = await axios.post(
-        `${publicApi}/promoCodes/check`,
-        {
-          promoCode: discountPromo,
-          courses: [courseData]
-        },
-        {
-          headers: { authorization: 'Bearer ' + localStorage.getItem('jwtToken') }
-        }
-      );
-      const { courses } = await discountRequest.data;
-      dispatch(checkoutProduct(courses[0]));
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const checkout = () => {
-    discount();
-    dispatch(checkoutProduct(courseData));
-    router.push('/checkout');
+  const _checkout = async (values) => {
+    const _discount = await discount(_dicsountValue, data);
+    setCheckout((checkout) => [
+      ...checkout,
+      {
+        product: data,
+        discount: _discount?.promoCodePrice,
+        options: values
+      }
+    ]);
+    toggleAlert();
   };
 
   const handleDiscount = (e) => {
-    dispatch(checkoutDiscount(e.target.value));
+    setDiscount(e.target.value);
   };
 
-  const fetchImage = (_image) => {
-    axios.post(`${publicApi}/courses/s3/single`, { file: _image }).then((response) => {
-      setImage(response.data);
-    });
+  const fetchStart = async () => {
+    if (router.query?.type === 'product') {
+      const response = await fetchProduct(router.query.id);
+      setData(response);
+      if (response?.images[0].key) {
+        const responseImage = await fetchLogo(response?.images[0].key);
+        setImage(responseImage);
+      }
+    } else {
+      const response = await fetchSingle(router.query.id);
+      const responseImage = await fetchLogo(response?.image);
+      setData(response);
+      setImage(responseImage);
+    }
   };
 
-  const fetchCourses = () => {
-    axios
-      .get(`${publicApi}/courses/${router.query.id}`, {
-        headers: { authorization: 'Bearer ' + localStorage.getItem('jwtToken') }
-      })
-      .then((response) => {
-        setCourse(response.data.course);
-        fetchImage(response.data.course.image);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  // toggle alertttttt
+  const toggleAlert = () => {
+    setAlert(true);
+    setTimeout(() => {
+      setAlert(false);
+    }, 4000);
   };
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    if (router.query.id) {
+      fetchStart();
+    }
+  }, [router.query.id]);
 
   return (
     <Main>
-      <Container>
-        <section className="bg-light pt-5 pb-5">
-          <Row>
-            <Col xs={12} lg={6}>
-              <div>{image ? <img alt="img" src={image} width="100%" /> : null}</div>
-            </Col>
-            <Col className="product-right-column mt-5" xs={12} lg={6}>
-              <h3 className="bold">{courseData?.name}</h3>
-              <p>Εύκολα, γρήγορα με ένα κλικ</p>
-              <h3>{courseData?.price}€</h3>
-              <Form.Group>
-                <Form.Control
-                  onChange={handleDiscount}
-                  type="text"
-                  placeholder="Κωδικός Έκπτωσης"
-                />
-              </Form.Group>
-              <div style={{ marginTop: '20px' }}>
-                {isAuth ? (
-                  <>
-                    <Button onClick={checkout} block>
-                      Αγορά
-                    </Button>
-                  </>
+      {data ? (
+        <Container style={{ maxWidth: '1140px' }}>
+          <section className="bg-light pt-5 pb-5">
+            <Row>
+              <Col xs={12} lg={6}>
+                <div>{image ? <img alt="img" src={image} width="100%" /> : null}</div>
+              </Col>
+              <Col className="product-right-column mt-5" xs={12} lg={6}>
+                {router.query?.type === 'product' ? (
+                  <h3 className="bold">{data?.title}</h3>
                 ) : (
-                  <Button href="/authentication/register" block>
-                    Εγγραφή
-                  </Button>
+                  <h3 className="bold">{data?.name}</h3>
                 )}
-              </div>
-            </Col>
-          </Row>
-          {/* PREVIABLE VIDEOS */}
-          <Row className="mt-5">
-            <Col>
-              {/* Εισαγωγή */}
-              <div style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <p style={{ fontSize: '20px', fontWeight: 'bold' }}>Εισαγωγή</p>
-                  {courseData?.videos
-                    .filter((data) => data.section === 'Εισαγωγή')
-                    .map((doc) => (
-                      <>
-                        {doc.isIntro ? (
-                          <>
-                            {doc.isPreviable ? (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                  <Card.Body>
-                                    <ProductVideo file={doc} />
-                                  </Card.Body>
-                                </Card>
-                              </div>
-                            ) : (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                </Card>
-                              </div>
-                            )}
-                          </>
-                        ) : null}
-                      </>
-                    ))}
+                <p>{data.description}</p>
+                <h3 className="mt-3 font-weight-bold">{data?.price}€</h3>
+                <Form onSubmit={handleSubmit(_checkout)} id="product-form">
+                  {data?.options?.map((data) => {
+                    return (
+                      <Form.Group key={data._id}>
+                        <Form.Label>{data?.name}</Form.Label>
+                        <Form.Control
+                          as="select"
+                          defaultValue={data.values[0]}
+                          name={data.name}
+                          ref={register()}
+                        >
+                          {data.values.map((doc) => {
+                            return (
+                              <option value={doc.name} key={doc._id}>
+                                {doc.name}
+                              </option>
+                            );
+                          })}
+                        </Form.Control>
+                      </Form.Group>
+                    );
+                  })}
+                </Form>
+                <Form.Group>
+                  <Form.Control
+                    onChange={handleDiscount}
+                    type="text"
+                    size="lg"
+                    placeholder="Κωδικός Έκπτωσης"
+                  />
+                </Form.Group>
+                <div style={{ marginTop: '20px' }}>
+                  {auth ? (
+                    <>
+                      <Button
+                        disabled={data?.stock < 1 ? true : false}
+                        size="lg"
+                        block
+                        type="submit"
+                        form="product-form"
+                      >
+                        {data?.stock < 1 ? 'Εκτός αποθέματος' : 'Προσθήκη στο καλάθι'}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button href="/authentication/register" type="button" block>
+                      Εγγραφή
+                    </Button>
+                  )}
                 </div>
-              </div>
-              {/* Επίγνωση */}
-              <div style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <p style={{ fontSize: '20px', fontWeight: 'bold' }}>Επίγνωση</p>
-                  {courseData?.videos
-                    .filter((data) => data.section === 'Επίγνωση')
-                    .map((doc) => (
-                      <>
-                        {doc.isIntro ? (
-                          <>
-                            {doc.isPreviable ? (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                  <Card.Body>
-                                    <ProductVideo file={doc} />
-                                  </Card.Body>
-                                </Card>
-                              </div>
-                            ) : (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                </Card>
-                              </div>
-                            )}
-                          </>
-                        ) : null}
-                      </>
-                    ))}
-                </div>
-              </div>
-              {/* Συνειδητό μυαλό */}
-              <div style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <p style={{ fontSize: '20px', fontWeight: 'bold' }}>Συνειδητό μυαλό</p>
-                  {courseData?.videos
-                    .filter((data) => data.section === 'Συνειδητό μυαλό')
-                    .map((doc) => (
-                      <>
-                        {doc.isIntro ? (
-                          <>
-                            {doc.isPreviable ? (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                  <Card.Body>
-                                    <ProductVideo file={doc} />
-                                  </Card.Body>
-                                </Card>
-                              </div>
-                            ) : (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                </Card>
-                              </div>
-                            )}
-                          </>
-                        ) : null}
-                      </>
-                    ))}
-                </div>
-              </div>
-              {/* Υποσυνείδητο μυαλό */}
-              <div style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <p style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                    Υποσυνείδητο μυαλό
-                  </p>
-                  {courseData?.videos
-                    .filter((data) => data.section === 'Υποσυνείδητο μυαλό')
-                    .map((doc) => (
-                      <>
-                        {doc.isIntro ? (
-                          <>
-                            {doc.isPreviable ? (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                  <Card.Body>
-                                    <ProductVideo file={doc} />
-                                  </Card.Body>
-                                </Card>
-                              </div>
-                            ) : (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                </Card>
-                              </div>
-                            )}
-                          </>
-                        ) : null}
-                      </>
-                    ))}
-                </div>
-              </div>
-              {/* Αποφώνηση */}
-              <div style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <p style={{ fontSize: '20px', fontWeight: 'bold' }}>Αποφώνηση</p>
-                  {courseData?.videos
-                    .filter((data) => data.section === 'Αποφώνηση')
-                    .map((doc) => (
-                      <>
-                        {doc.isIntro ? (
-                          <>
-                            {doc.isPreviable ? (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                  <Card.Body>
-                                    <ProductVideo file={doc} />
-                                  </Card.Body>
-                                </Card>
-                              </div>
-                            ) : (
-                              <div style={{ order: `${doc.order}` }} className="mb-1">
-                                <Card key={doc._id}>
-                                  <Card.Header className="bold">{doc.title}</Card.Header>
-                                </Card>
-                              </div>
-                            )}
-                          </>
-                        ) : null}
-                      </>
-                    ))}
-                </div>
-              </div>
-            </Col>
-          </Row>
-        </section>
-      </Container>
+                {alert ? (
+                  <Alert className="mt-1" variant="success">
+                    Το προιόν προστέθηκε στο καλάθι με επιτυχία
+                  </Alert>
+                ) : null}
+              </Col>
+            </Row>
+            {/* PREVIABLE VIDEOS */}
+            {router.query?.type === 'product' ? null : <PreviableVideos data={data} />}
+          </section>
+        </Container>
+      ) : (
+        <div
+          style={{ height: '100vh' }}
+          className="d-flex justify-content-center align-items-center bg-dark"
+        >
+          <Spinner className="mb-1" animation="border" size="lg" variant="light" />
+        </div>
+      )}
     </Main>
   );
 };

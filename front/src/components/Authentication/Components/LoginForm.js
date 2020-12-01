@@ -1,15 +1,39 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { Form, Button } from 'react-bootstrap';
-import { login } from '../../../store/actions/authentication.action';
+import { login } from '../../../utils/Auth';
+import { AuthContext } from '../../../store/Context/Context';
 
 const LoginForm = () => {
-  const dispatch = useDispatch();
   const { handleSubmit, register } = useForm();
+  const { setAuth } = useContext(AuthContext);
 
-  const finishLogin = (values) => {
-    dispatch(login(values));
+  const finishLogin = async (values) => {
+    const response = await login(values);
+    if (response === 'error') {
+      setAuth({
+        isAuthenticated: false,
+        isError: true,
+        id: '',
+        email: '',
+        name: '',
+        token: ''
+      });
+    } else {
+      setAuth({
+        isAuthenticated: true,
+        isError: false,
+        id: response.id,
+        email: response.email,
+        name: response.name,
+        token: response.token
+      });
+      localStorage.setItem('isAuthenticated', true);
+      localStorage.setItem('id', response.id);
+      localStorage.setItem('email', response.email);
+      localStorage.setItem('name', response.name);
+      localStorage.setItem('token', response.token);
+    }
   };
 
   return (

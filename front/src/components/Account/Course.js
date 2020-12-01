@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { Col, Row, Container, Spinner, Card } from 'react-bootstrap';
-import axios from 'axios';
-import VideoList from './Components/VideoList';
-import { publicApi } from '../../config/api';
+import { useRouter } from 'next/router';
+import { fetchSingle } from '../../utils/Courses';
 import Account from './Account';
 import SingleVideo from './Components/SingleVideo';
+import VideoList from './Components/VideoList';
 
 const Course = () => {
   const router = useRouter();
@@ -15,22 +14,14 @@ const Course = () => {
   const [currentTitle, setCurrentTitle] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const fetchCourses = () => {
+  const fetchCourses = async () => {
     setLoading(true);
-    axios
-      .get(`${publicApi}/courses/${router.query.id}`, {
-        headers: { authorization: 'Bearer ' + localStorage.getItem('jwtToken') }
-      })
-      .then((response) => {
-        setCourse(response.data.course);
-        setCurrentVideo(response.data.course?.videos[0].key);
-        setCurrentDescription(response.data.course?.videos[0].description);
-        setCurrentTitle(response.data.course?.videos[0].title);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const course = await fetchSingle(router.query.id);
+    setCourse(course);
+    setCurrentVideo(course?.videos[0].key);
+    setCurrentDescription(course?.videos[0].description);
+    setCurrentTitle(course?.videos[0].title);
+    setLoading(false);
   };
 
   const changeVideo = (key, description, title) => {

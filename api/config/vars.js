@@ -21,9 +21,9 @@ module.exports = {
   url:
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000'
-      : 'https://www.becomethevulture.com',
+      : 'https://www.axions.co',
   apiUrl:
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:3002'
-      : 'https://api.becomethevulture.com'
+      : 'https://api.axions.co'
 };

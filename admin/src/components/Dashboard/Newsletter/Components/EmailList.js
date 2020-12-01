@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Table, Button, ButtonGroup, Modal, Form, Row, Col } from 'react-bootstrap';
+import { Card, Table, Button, ButtonGroup, Modal, Form } from 'react-bootstrap';
 import { MdEmail } from 'react-icons/md';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { apiUrl } from '../../../../config/api';
-import Pagination from '../../Courses/Components/Pagination';
-import Search from '../../Courses/Components/Search';
+import Pagination from '../../Shared/Pagination/Pagination';
+import Search from '../../Shared/Search/Search';
 import Alert from '../../Alerts/Alert';
 
 const ReactQuill = dynamic(() => import('react-quill'), {
@@ -16,7 +16,6 @@ const EmailList = () => {
   const [clients, setClients] = useState();
   const [skip, setSkip] = useState(1);
   const [filter, setFilter] = useState('');
-  const [perpage, setPerpage] = useState(10);
   const [showEdit, setShowEdit] = useState(false);
   const [showNewsletter, setShowNewsletter] = useState(false);
   const [clientId, setClientId] = useState();
@@ -43,12 +42,9 @@ const EmailList = () => {
 
   const fetchClients = () => {
     axios
-      .get(
-        `${apiUrl}/email/newsletter?perPage=${perpage}&skip=${skip}&filter=${filter}`,
-        {
-          headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
-        }
-      )
+      .get(`${apiUrl}/email/newsletter?perPage=10&skip=${skip}&filter=${filter}`, {
+        headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+      })
       .then((response) => {
         setClients(response.data.newsletters);
       })
@@ -56,13 +52,6 @@ const EmailList = () => {
         console.log(err);
       });
   };
-
-  const changePerPage = useCallback(
-    (e) => {
-      setPerpage(e.target.value);
-    },
-    [perpage, setPerpage]
-  );
 
   // change page and searh function
   const changePage = useCallback(
@@ -72,7 +61,7 @@ const EmailList = () => {
       } else {
         setSkip(skip - 1);
       }
-      if (skip < 1) {
+      if (skip === 0) {
         setSkip(1);
       }
     },
@@ -113,7 +102,7 @@ const EmailList = () => {
 
   useEffect(() => {
     fetchClients();
-  }, [skip, filter, perpage]);
+  }, [skip, filter]);
 
   return (
     <>
@@ -146,19 +135,7 @@ const EmailList = () => {
               })}
             </tbody>
           </Table>
-          <Row>
-            <Col>
-              <Pagination changePage={changePage} skip={skip} />
-            </Col>
-            <Col>
-              <Form.Control as="select" onChange={changePerPage}>
-                <option value="10">10</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="1000">1000</option>
-              </Form.Control>
-            </Col>
-          </Row>
+          <Pagination changePage={changePage} skip={skip} />
         </Card.Body>
       </Card>
       {/* MODAL NEWSLETTER */}

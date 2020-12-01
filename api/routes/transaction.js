@@ -1,6 +1,9 @@
 const express = require('express');
 const Transaction = require('../models/transactions.model');
-const { verifySubscriberTokenMiddleware } = require('../middleware/auth');
+const {
+  verifySubscriberTokenMiddleware,
+  verifyTokenMiddleware
+} = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -15,7 +18,7 @@ router.post('/', [verifySubscriberTokenMiddleware], (req, res) => {
   });
 });
 
-router.get('/all', (req, res) => {
+router.get('/all', [verifyTokenMiddleware], (req, res) => {
   Transaction.find({}, (err, doc) => {
     if (err) {
       console.log(err);

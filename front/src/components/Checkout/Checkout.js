@@ -1,80 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Row, Container, Button, Col, Card } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { useRouter } from 'next/router';
-import { publicApi } from '../../config/api';
+import { CheckoutContext, AuthContext, PriceContext } from '../../store/Context/Context';
 import CoProduct from './components/co-product';
 import Main from '../Main';
 import Paypal from '../Paypal/paypal';
+import { addCourse } from '../../utils/Checkout';
 
 const Checkout = () => {
-  const product = useSelector((state) => state.checkout.product);
-  const loading = useSelector((state) => state.checkout.loading);
-  const id = useSelector((state) => state.auth.id);
+  const { checkout } = useContext(CheckoutContext);
+  const { auth } = useContext(AuthContext);
+  const { price, setPrice } = useContext(PriceContext);
   const [showPaypal, setShowPaypal] = useState(false);
-  const router = useRouter();
 
   const showPaypalButton = () => {
     setShowPaypal(true);
   };
 
-  const saveTransaction = () => {
-    axios.post(
-      `${publicApi}/transaction`,
-      {
-        value: product?.promoCodePrice ? product?.promoCodePrice : product?.price
-      },
-      {
-        headers: {
-          authorization: 'Bearer ' + localStorage.getItem('jwtToken')
-        }
-      }
-    );
-  };
-
-  const addCourse = (details, data) => {
-    axios
-      .post(
-        `${publicApi}/subscribers/addCourse/client`,
-        { id, course: product },
-        {
-          headers: { authorization: 'Bearer ' + localStorage.getItem('jwtToken') }
-        }
-      )
-      .then(() => {
-        saveTransaction(details, data);
-        router.push('/account/mycourses');
-        setShowPaypal(false);
-      });
-  };
-
-  const onSuccess = (details, data) => {
-    addCourse(details, data);
+  const onSuccess = () => {
+    addCourse(checkout.checkout.product, auth.id);
   };
 
   const onError = () => {
     console.log('error');
   };
 
+  console.log('price', price);
   return (
     <>
+      {price?.map((data) => `${data}, `)}
       {showPaypal ? (
         <div className="paypal-container">
           <Paypal
             onSuccess={onSuccess}
             onError={onError}
-            ammount={product?.promoCodePrice ? product?.promoCodePrice : product?.price}
+            ammount={price?.reduce((a, b) => a + b, 0)}
           />
         </div>
       ) : (
         <Main>
           <section className="bg-light pt-5 pb-5">
             <Container style={{ minHeight: 'calc(100vh - 60px)' }}>
-              {loading ? (
-                <Card className="pt-1">
+              {checkout.length < 1 ? (
+                <Card className="mt-5 pt-1 w-50 mx-auto">
                   <Card.Body className="text-center">
-                    <h3>Το καλάθι είναι άδιο</h3>
+                    <h3>Το καλάθι σας είναι άδειο</h3>
                     <Button href="/" className="mt-3" block>
                       Πίσω στην αρχική
                     </Button>
@@ -86,12 +55,10 @@ const Checkout = () => {
                   <Row className="justify-content-center pt-5">
                     <h3>
                       Το σύνολο είναι:{' '}
-                      {product?.promoCodePrice ? product?.promoCodePrice : product?.price}
-                      €
+                      {price ? (
+                        <strong>{price.reduce((a, b) => a + b, 0)}€</strong>
+                      ) : null}
                     </h3>
-                  </Row>
-                  <Row className="justify-content-center">
-                    <p>Ready in seconds</p>
                   </Row>
                   <Row className="justify-content-center">
                     <Col xs="4" className="mt-1">
@@ -104,7 +71,18 @@ const Checkout = () => {
                     <hr style={{ color: 'red' }} />
                   </Row>
                   <Row className="justify-content-center ">
-                    <CoProduct product={product} />
+                    {checkout?.map((data, i) => {
+                      return (
+                        <div key={i}>
+                          <CoProduct
+                            data={data}
+                            itemNum={i}
+                            price={price}
+                            setPrice={setPrice}
+                          />
+                        </div>
+                      );
+                    })}
                   </Row>
                   <Row className="justify-content-center">
                     <hr />

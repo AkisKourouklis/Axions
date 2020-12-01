@@ -1,18 +1,22 @@
 require('dotenv/config');
 const bodyParser = require('body-parser');
-const cors = require('cors');
-const express = require('express');
-const mongoose = require('mongoose');
-const socketio = require('socket.io');
-const http = require('http');
-const path = require('path');
-const Users = require('./routes/users');
-const Subscribers = require('./routes/subscribers');
-const Courses = require('./routes/courses');
-const Transactions = require('./routes/transaction');
-const PromoCodes = require('./routes/promocodes');
-const Email = require('./routes/email');
+const Category = require('./routes/categories');
 const Config = require('./routes/config');
+const cors = require('cors');
+const Courses = require('./routes/courses');
+const Email = require('./routes/email');
+const express = require('express');
+const http = require('http');
+const mongoose = require('mongoose');
+const path = require('path');
+const Products = require('./routes/product');
+const PromoCodes = require('./routes/promocodes');
+const socketio = require('socket.io');
+const Subscribers = require('./routes/subscribers');
+const Transactions = require('./routes/transaction');
+const Users = require('./routes/users');
+const Design = require('./routes/design');
+const Filter = require('./routes/filters');
 const {
   addUser,
   removeUser,
@@ -23,7 +27,6 @@ const {
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-//  Start listening
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -89,13 +92,17 @@ mongoose
   });
 
 //  routes
-app.use('/users', Users);
-app.use('/subscribers', Subscribers);
-app.use('/courses', Courses);
-app.use('/promoCodes', PromoCodes);
-app.use('/transaction', Transactions);
-app.use('/email', Email);
+app.use('/categories', Category);
 app.use('/config', Config);
+app.use('/courses', Courses);
+app.use('/design', Design);
+app.use('/email', Email);
+app.use('/filters', Filter);
+app.use('/products', Products);
+app.use('/promoCodes', PromoCodes);
+app.use('/subscribers', Subscribers);
+app.use('/transaction', Transactions);
+app.use('/users', Users);
 
 app.use(express.static(path.join(__dirname, 'public')));
 

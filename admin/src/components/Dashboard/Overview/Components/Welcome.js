@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from 'react';
 import { apiUrl } from '../../../../config/api';
+import { AuthContext } from '../../../../store/Context/Context';
+import { Card } from 'react-bootstrap';
+import axios from 'axios';
 
 const Welcome = () => {
-  const email = useSelector((state) => state.auth.email);
+  const { auth } = useContext(AuthContext);
   const [user, setUser] = useState();
 
   const fetchUser = () => {
-    if (email) {
+    if (auth.email) {
       axios
-        .get(`${apiUrl}/users/${email}`)
+        .get(`${apiUrl}/users/${auth.email}`)
         .then((response) => {
           setUser(response.data);
         })
@@ -23,10 +23,10 @@ const Welcome = () => {
 
   useEffect(() => {
     fetchUser();
-  }, [email]);
+  }, [auth.email]);
   return (
     <>
-      <Card style={{ width: '100% ' }}>
+      <Card className="shadow-sm" style={{ width: '100% ' }}>
         <Card.Body>
           <Card.Title>
             Καλός ήρθες

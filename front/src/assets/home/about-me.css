@@ -6,6 +6,7 @@
 }
 .aboutMe-wrapper {
   margin: 0 auto;
+  border-radius: 7px;
   background: #090909b4;
   padding: 2rem;
   display: flex;

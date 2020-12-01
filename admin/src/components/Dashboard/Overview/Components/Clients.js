@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Table, Button, ButtonGroup, Modal, Form, Row, Col } from 'react-bootstrap';
-import { MdEdit, MdEmail } from 'react-icons/md';
+import { Button, Modal, Form } from 'react-bootstrap';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { apiUrl } from '../../../../config/api';
-import Pagination from '../../Courses/Components/Pagination';
-import Search from '../../Courses/Components/Search';
-import EditClient from './Components/EditClient';
+import Pagination from '../../Shared/Pagination/Pagination';
+import Search from '../../Shared/Search/Search';
 import Alert from '../../Alerts/Alert';
+import ClientsTable from '../../Shared/Tables/ClientTable';
+import EditClientModal from '../../Shared/Modals/EditClient';
 
 const ReactQuill = dynamic(() => import('react-quill'), {
   ssr: false
@@ -17,7 +17,6 @@ const Clients = () => {
   const [clients, setClients] = useState();
   const [skip, setSkip] = useState(1);
   const [filter, setFilter] = useState('');
-  const [perpage, setPerpage] = useState(10);
   const [showEdit, setShowEdit] = useState(false);
   const [showNewsletter, setShowNewsletter] = useState(false);
   const [clientId, setClientId] = useState();
@@ -40,6 +39,7 @@ const Clients = () => {
   };
   const toggleHideEdit = () => {
     setShowEdit(false);
+    fetchClients();
   };
 
   const toggleShowNewsletter = (id) => {
@@ -52,7 +52,7 @@ const Clients = () => {
 
   const fetchClients = () => {
     axios
-      .get(`${apiUrl}/subscribers/all?perPage=${perpage}&skip=${skip}&filter=${filter}`, {
+      .get(`${apiUrl}/subscribers/all?perPage=10&skip=${skip}&filter=${filter}`, {
         headers: { authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
       })
       .then((response) => {
@@ -63,14 +63,6 @@ const Clients = () => {
       });
   };
 
-  // per page
-  const changePerPage = useCallback(
-    (e) => {
-      setPerpage(e.target.value);
-    },
-    [perpage, setPerpage]
-  );
-
   // change page and searh function
   const changePage = useCallback(
     (type) => {
@@ -79,7 +71,7 @@ const Clients = () => {
       } else {
         setSkip(skip - 1);
       }
-      if (skip < 1) {
+      if (skip === 0) {
         setSkip(1);
       }
     },
@@ -120,83 +112,25 @@ const Clients = () => {
 
   useEffect(() => {
     fetchClients();
-  }, [skip, filter, perpage]);
+  }, [skip, filter]);
 
   return (
     <>
       {alert ? <Alert message="Επιτυχία" /> : null}
       <Search onChange={changeFilter} />
-      <Card>
-        <Card.Body>
-          <Table responsive striped hover>
-            <thead>
-              <tr>
-                <th className="desktop">#</th>
-                <th>Όνομα</th>
-                <th>Τηλέφωνο</th>
-                <th>Διευθυνση Email</th>
-                <th>Γλώσσα</th>
-                <th>Εντολές</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clients?.map((data, i) => {
-                return (
-                  <tr key={data._id}>
-                    <td className="desktop">{i}</td>
-                    <td>{data.name}</td>
-                    <td>{data.phone}</td>
-                    <td>{data.email}</td>
-                    <td>{data.language}</td>
-                    <td>
-                      <ButtonGroup className="mr-2" aria-label="First group">
-                        <Button onClick={() => toggleShowEdit(data._id)}>
-                          <MdEdit />
-                        </Button>
-                        <Button onClick={() => toggleShowNewsletter(data.email)}>
-                          <MdEmail />
-                        </Button>
-                      </ButtonGroup>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-          <Row>
-            <Col>
-              <Pagination changePage={changePage} skip={skip} />
-            </Col>
-            <Col>
-              <Form.Control as="select" onChange={changePerPage}>
-                <option value="10">10</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="1000">1000</option>
-              </Form.Control>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+      <ClientsTable
+        data={clients}
+        toggleShowNewsletter={toggleShowNewsletter}
+        toggleHideEdit={toggleHideEdit}
+        handleShowEdit={toggleShowEdit}
+      />
+      <Pagination changePage={changePage} skip={skip} />
       {/* MODAL EDIT CLIENT */}
-      <Modal show={showEdit} onHide={toggleHideEdit} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <h5>Προσθήκη βίντεο</h5>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <EditClient id={clientId} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleHideEdit}>
-            Έξοδος
-          </Button>
-          <Button variant="primary" type="submit">
-            Αποθήκευση Χρήστη
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <EditClientModal
+        showEdit={showEdit}
+        toggleHideEdit={toggleHideEdit}
+        clientId={clientId}
+      />
       {/* MODAL NEWSLETTER */}
       <Modal show={showNewsletter} onHide={toggleHideNewsletter} size="lg">
         <Modal.Header closeButton>

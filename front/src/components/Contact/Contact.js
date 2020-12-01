@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import Main from '../Main';
 import { Form, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import Main from '../Main';
 import { publicApi } from '../../config/api';
 
 const Contact = () => {

@@ -1,40 +1,66 @@
-import React from 'react';
-import ReactPlayer from 'react-player';
-import { Row, Col } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { fetchCategories } from '../../../utils/Categories';
+import { Row, Col, Container, Spinner, Button } from 'react-bootstrap';
+import { settings } from '../../../utils/Slick';
+import CardImage from '../../Shared/CardImage';
+import Slider from 'react-slick';
 
-const Intro = () => {
+const Section1 = () => {
+  const [category, setCategory] = useState();
+
+  const fetchStart = async () => {
+    const response = await fetchCategories('100');
+    setCategory(response);
+  };
+
+  useEffect(() => {
+    fetchStart();
+  }, []);
+
   return (
-    <section className="intro-container pt-5 pb-5">
-      <Row className="justify-content-center">
-        <h2 className="headline">
-          <img alt="img" src="/logo.png" className="logo-intro" />
-        </h2>
-      </Row>
-      <Row className="justify-content-center">
-        <Col className="text-center">
-          <h3 className="subhead">Το online course που</h3>
-          <h3 className="subhead">Θα σου αλλάξει τα δεδομένα</h3>
-        </Col>
-      </Row>
-      <Row className="justify-content-center align-items-center mt-5">
-        <Col xs="12">
-          <div
-            style={{
-              position: 'relative',
-              display: 'flex',
-              justifyContent: 'center'
-            }}
-          >
-            <ReactPlayer
-              style={{ borderRadius: '4px' }}
-              url="https://youtu.be/YJn_2lT6J7E"
-              controls
-            />
-          </div>
-        </Col>
-      </Row>
-    </section>
+    <>
+      {category ? (
+        <section className="pb-4 pt-1 section1-container desktop">
+          <Container>
+            <Row className="mt-3 mb-2">
+              <Col className="text-center">
+                <h1 className="text-light font-weight-bold">
+                  Όλα τα ελληνικά εσώρουχα <br /> σε μία ιστοσελίδα
+                </h1>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Slider {...settings}>
+                  {category.map((data) => {
+                    return (
+                      <div className="p-2" key={data._id}>
+                        <CardImage size="small" file={data} color="light" />
+                      </div>
+                    );
+                  })}
+                </Slider>
+              </Col>
+            </Row>
+            <Row className="mt-5">
+              <Col className="text-center">
+                <Button size="lg" className="w-25">
+                  Δες τα όλα
+                </Button>
+              </Col>
+            </Row>
+          </Container>
+        </section>
+      ) : (
+        <div
+          style={{ height: '100vh' }}
+          className="d-flex justify-content-center align-items-center bg-dark"
+        >
+          <Spinner className="mb-1" animation="border" size="lg" variant="light" />
+        </div>
+      )}
+    </>
   );
 };
 
-export default Intro;
+export default Section1;
